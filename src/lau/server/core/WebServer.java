@@ -25,6 +25,8 @@ public class WebServer {
 			System.out.println("等待客户端连接...");
 			Socket socket = server.accept();
 			System.out.println("客户端连接成功！");
+			ClientHandler client = new ClientHandler(socket);
+			threadPool.execute(client);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
