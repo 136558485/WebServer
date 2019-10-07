@@ -21,15 +21,17 @@ public class WebServer {
 	}
 	
 	public void start() {
-		try {
-			System.out.println("等待客户端连接...");
-			Socket socket = server.accept();
-			System.out.println("客户端连接成功！");
-			ClientHandler client = new ClientHandler(socket);
-			threadPool.execute(client);
-		} catch (IOException e) {
-			e.printStackTrace();
+		while(true) {
+			try {
+				System.out.println("等待客户端连接...");
+				Socket socket = server.accept();
+				ClientHandler client = new ClientHandler(socket);
+				threadPool.execute(client);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
+		
 	}
 	
 	public static void main(String[] args) {
