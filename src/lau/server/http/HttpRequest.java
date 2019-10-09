@@ -11,15 +11,15 @@ import lau.server.context.HttpContext;
 
 public class HttpRequest {
 	
-	private String url;
-	private String method;
-	private String protocal;
-	private String requestUrl;
+	private String url;           
+	private String method;  //请求方式
+	private String protocal;  //http协议版本
+	private String requestUrl;  //请求url
 
-	private Map<String,String> parameters = new HashMap<String,String>();
-	private Map<String,String> headers = new HashMap<String,String>();
+	private Map<String,String> parameters = new HashMap<String,String>();   //请求参数
+	private Map<String,String> headers = new HashMap<String,String>();   //请求头
 	
-	private byte[] data;
+	private byte[] data;  //请求消息正文
 	
 
 	@SuppressWarnings("unused")
@@ -31,33 +31,21 @@ public class HttpRequest {
 		try {
 			this.socket = socket;
 			in = socket.getInputStream();
-//			getRequestHead();
+			//解析状态行
+			parseStatLine();	
 			//解析请求头
-			parseStatLine();						
 			parseHeaders();
+			//解析消息正文
 			parseContent();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-	//测试代码
-	@SuppressWarnings("unused")
-	public void getRequestHead() {
-		int b = 0;  
-		byte[] data = new byte[1024];
-		try {
-			in.read(data);
-			System.out.println("输出文字data:"+new String(data));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}		
 	}
 
 	/**
 	 * 解析状态行
 	 */
 	private void parseStatLine() {
-//		System.out.println("开始解析请求！");	
 		String[] statArr = readLine().split("\\s");
 		if(statArr.length<3) {
 			return;
@@ -65,10 +53,6 @@ public class HttpRequest {
 		method = statArr[0];
 		url = statArr[1];
 		protocal = statArr[2];
-		
-		System.out.println("method:"+method);
-		System.out.println("url:"+url);
-		System.out.println("protocal:"+protocal);
 		
 		if(url.indexOf("?") != -1) {
 			String[] urlSplit = url.split("\\?");
@@ -79,9 +63,6 @@ public class HttpRequest {
 			for(String param : urlSplit[1].split("&")){
 				parameters.put(param.substring(0,param.indexOf("=")),param.substring(param.indexOf("=")+1));
 			}
-//			for(Entry<String,String> en : parameters.entrySet()) {
-//				System.out.println("请求参数："+en.getKey()+","+en.getValue());
-//			}
 		}
 		requestUrl = url;
 		
@@ -96,13 +77,11 @@ public class HttpRequest {
 			String[] headSplit = headLine.split(":\\s");
 			headers.put(headSplit[0], headSplit[1]);
 		}
-//		System.out.println("请求消息头：");
-//		for(Entry<String,String> en : headers.entrySet()) {
-//			System.out.println(en.getKey()+","+en.getValue());
-//		}
 	}
 	
-	//如果是post请求，解析消息正文
+	/**
+	 * 解析消息正文
+	 */
 	private void parseContent(){
 		if(headers.containsKey("Content-Length")) {
 			int length = Integer.parseInt(headers.get("Content-Length"));
@@ -118,9 +97,6 @@ public class HttpRequest {
 				for(String param : params.split("&")){
 					parameters.put(param.substring(0,param.indexOf("=")),param.substring(param.indexOf("=")+1));
 				}
-//				for(Entry<String,String> en : parameters.entrySet()) {
-//					System.out.println("请求参数："+en.getKey()+","+en.getValue());
-//				}
 			}else {
 				this.data = data;
 			}

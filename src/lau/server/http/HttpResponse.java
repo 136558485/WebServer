@@ -13,10 +13,10 @@ import lau.server.context.HttpContext;
 
 public class HttpResponse {
 	
-	private int statusCode;
-	private Map<String,String> header = new HashMap<String,String>();
-	private byte[] data;
-	private File entity;
+	private int statusCode;  //响应状态码
+	private Map<String,String> header = new HashMap<String,String>();  //响应头
+	private byte[] data;  //响应正文
+	private File entity;  //响应实体
 
 	private Socket socket;
 	private OutputStream out;
@@ -46,24 +46,29 @@ public class HttpResponse {
 	}
 
 	
-
+    /**
+     * 发送响应状态行
+     */
 	private void sendStatusLine() {
-		System.out.println("发送状态行！");
 		String statusLine = "HTTP/1.1 "+statusCode+" "+HttpContext.getStatusCodeReasonMapping(statusCode);
 		sendLine(statusLine);
 		
 	}
 
+	/**
+	 * 发送响应消息头
+	 */
 	private void sendHeader() {
-		System.out.println("发送响应头！");
 		for(Entry<String,String> en : header.entrySet()) {
 			sendLine(en.getKey()+":"+en.getValue());
 		}
 		sendLine("");
 	}
-
+    
+	/**
+	 * 发送响应实体以及响应正文
+	 */
 	private void sendContent() {
-		System.out.println("发送响应正文！");
 		try {
 			if(this.data != null) {
 				out.write(data);
